@@ -165,7 +165,7 @@ def uncertainty(observations, iterations, max_entropy, device, mode = 'min'):
 
 def run(ymir_cfg: edict, ymir_yolov5: YmirYolov5):
     # eg: gpu_id = 1,3,5,7  for LOCAL_RANK = 2, will use gpu 5.
-    mcd_iterations = ymir_cfg.param.mcd_iterations
+    mcd_iterations = 10
 
     gpu = LOCAL_RANK if LOCAL_RANK >= 0 else 0
     device = torch.device('cuda', gpu)
