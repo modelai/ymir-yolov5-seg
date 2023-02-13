@@ -431,7 +431,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                     write_ymir_training_result(ymir_cfg, evaluation_result={'maskAP':float(best_fitness[0]),
                                                                             'boxAP':boxAP,
                                                                             'tp':int(mask_tp_fp[0]),
-                                                                            'fp':int(mask_tp_fp[1])}, 
+                                                                            'fp':int(mask_tp_fp[1]),
+                                                                            'fn':int(mask_tp_fp[2])}, 
                                                                             id='best', files=[str(best)])
 
                 if opt.save_period > 0 and final_epoch:
@@ -442,7 +443,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                     write_ymir_training_result(ymir_cfg, evaluation_result={'maskAP':float(fi[0]),
                                                                             'boxAP':boxAP,
                                                                             'tp':int(mask_tp_fp[0]),
-                                                                            'fp':int(mask_tp_fp[1])},
+                                                                            'fp':int(mask_tp_fp[1]),
+                                                                            'fn':int(mask_tp_fp[2])},
                                                                             id='last', files=[weight_file])
                 
                 elif opt.save_period > 0 and epoch % opt.save_period == 0:
@@ -509,7 +511,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                                        evaluation_result={'maskAP':float(best_fitness[0]),
                                                         'boxAP':best_boxAP,
                                                         'tp':int(mask_tp_fp[0]),
-                                                        'fp':int(mask_tp_fp[1])},
+                                                        'fp':int(mask_tp_fp[1]),
+                                                        'fn':int(mask_tp_fp[2])},
                                                         id='best',
                                                         files=[str(best), str(onnx_file)])
         else:
@@ -517,7 +520,8 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
             write_ymir_training_result(ymir_cfg, evaluation_result={'maskAP':float(best_fitness[0]),
                                                                     'boxAP':best_boxAP,
                                                                     'tp':int(mask_tp_fp[0]),
-                                                                    'fp':int(mask_tp_fp[1])},
+                                                                    'fp':int(mask_tp_fp[1]),
+                                                                    'fn':int(mask_tp_fp[2])},
                                                                     id='best', files=[])
 
         if not opt.evolve:

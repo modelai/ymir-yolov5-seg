@@ -165,7 +165,7 @@ def uncertainty(observations, iterations, max_entropy, device, mode = 'min'):
 
 def run(ymir_cfg: edict, ymir_yolov5: YmirYolov5):
     # eg: gpu_id = 1,3,5,7  for LOCAL_RANK = 2, will use gpu 5.
-    mcd_iterations = 10
+    mcd_iterations = 5
 
     gpu = LOCAL_RANK if LOCAL_RANK >= 0 else 0
     device = torch.device('cuda', gpu)
@@ -215,6 +215,9 @@ def run(ymir_cfg: edict, ymir_yolov5: YmirYolov5):
         # batch-level sync, avoid 30min time-out error
         if WORLD_SIZE > 1 and idx < max_barrier_times:
             dist.barrier()
+        if RANK in [-1, 0]:
+            write_ymir_monitor_process(ymir_cfg, task='mining', naive_stage_percent=idx * batch_size_per_gpu / dataset_size, stage=YmirStage.TASK)
+        
         for i in range(mcd_iterations):
          
             with torch.no_grad():
@@ -222,9 +225,7 @@ def run(ymir_cfg: edict, ymir_yolov5: YmirYolov5):
 
                 
 
-        # if RANK in [-1, 0]:
-        #     write_ymir_monitor_process(ymir_cfg, task='mining', naive_stage_percent=idx * batch_size_per_gpu / dataset_size, stage=YmirStage.TASK)
-        
+
             preprocess_image_shape = batch['image'].shape[2:]
 
             for inner_idx, det in enumerate(pred):  # per image
@@ -255,13 +256,10 @@ def run(ymir_cfg: edict, ymir_yolov5: YmirYolov5):
         img_uncertainty_batch = uncertainty(obs, mcd_iterations, max_entropy, device, mode='mean') ## reduce the iterations when facing a "CUDA out of memory" error
         
         for batch_idx in prediction_dict["image_file"].keys():
-            # mining_results[prediction_dict["image_file"][batch_idx][0]] = img_uncertainty_batch[batch_idx]
             if len(prediction_dict["image_file"][batch_idx]):
                 mining_results[prediction_dict["image_file"][batch_idx][0]] = img_uncertainty_batch[batch_idx]
 
-    
-        if RANK in [0,-1]:
-            print(len(mining_results))
+ 
 
     torch.save(mining_results, f'/out/mining_results_{max(0,RANK)}.pt')
 

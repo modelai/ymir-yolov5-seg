@@ -22,18 +22,22 @@ RUN	apt-get update && apt-get install -y gnupg2 git libglib2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./requirements.txt /workspace/
-# install ymir-exc sdk and requirements
-RUN pip install -r /workspace/requirements.txt \
-    && pip install "git+https://github.com/modelai/ymir-executor-sdk.git@ymir1.3.0"
+
+
 
 # Copy file from host to docker and install requirements
 COPY . /app
-RUN mkdir /img-man && mv /app/ymir/img-man/*-template.yaml /img-man/
+RUN mkdir /img-man && mv /app/ymir/img-man/*.yaml /img-man/
 
+COPY ./requirements.txt /workspace/
+# install and requirements
+RUN pip install -r /workspace/requirements.txt 
 # Download pretrained weight and font file
 RUN cd /app && bash data/scripts/download_weights.sh \
     && wget https://ultralytics.com/assets/Arial.ttf -O ${YOLOV5_CONFIG_DIR}/Arial.ttf
+
+# install ymir-exc sdk
+RUN pip install "git+https://github.com/modelai/ymir-executor-sdk.git@ymir2.1.0"
 
 # Make PYTHONPATH find local package
 ENV PYTHONPATH=.

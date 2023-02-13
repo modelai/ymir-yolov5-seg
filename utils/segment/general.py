@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import torch
 import torch.nn.functional as F
-
+from pycocotools import mask as maskUtils
 
 def crop_mask(masks, boxes):
     """
@@ -216,14 +216,15 @@ def gen_anns_from_dets(img_file,img_shapes,bbox_result,segmentation_result,ymir_
             'image_id': img_id,
             'category_id': int(all_boxes[j][2]),
             'segmentation': segmentation_result[j] ,
+            'area': float(maskUtils.area(segmentation_result[j])) ,
             'bbox': all_boxes[j][0],
             'score':  all_boxes[j][1],
-            'iscrowd': 1
+            'iscrowd': 0
         }
-        if 'annotation' in ymir_infer_result:
-            ymir_infer_result['annotation'].append(ann_i_j)
+        if 'annotations' in ymir_infer_result:
+            ymir_infer_result['annotations'].append(ann_i_j)
         else:
-            ymir_infer_result['annotation']=[ann_i_j]
+            ymir_infer_result['annotations']=[ann_i_j]
 
         
     
